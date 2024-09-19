@@ -11,7 +11,7 @@ import static org.junit.jupiter.api.Assertions.assertThrowsExactly;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-public class CompanyTest {
+abstract class CompanyTest {
 	private static final long ID1 = 123;
 	private static final int SALARY1 = 1000;
 	private static final String DEPARTMENT1 = "QA";

@@ -90,14 +90,9 @@ public class CompanyImpl implements Company {
 
     @Override
     public Manager[] getManagersWithMostFactor() {
-        if (managersFactor.isEmpty()) {
-            return new Manager[0];
-        }
-        float maxFactor = managersFactor.lastKey();
-        return managersFactor.get(maxFactor).toArray(new Manager[0]);
+        return managersFactor.isEmpty() ? new Manager[0] : managersFactor.get(managersFactor.lastKey()).toArray(new Manager[0]);
     }
 
-    // Helper methods to manage employees by department
     private void addToDepartment(Employee employee) {
         employeesDepartment.computeIfAbsent(employee.getDepartment(), k -> new ArrayList<>()).add(employee);
     }
@@ -112,7 +107,6 @@ public class CompanyImpl implements Company {
         }
     }
 
-    // Helper methods to manage managers by factor
     private void addToManagersFactor(Manager manager) {
         managersFactor.computeIfAbsent(manager.getFactor(), k -> new ArrayList<>()).add(manager);
     }
