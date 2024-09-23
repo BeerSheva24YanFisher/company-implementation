@@ -32,7 +32,7 @@ public class CompanyImpl implements Company {
             @Override
             public void remove() {
                 if (!canRemove) {
-                    throw new IllegalStateException("Cannot remove before calling next or after already removing.");
+                    throw new IllegalStateException();
                 }
                 Employee employee = lastReturned.getValue();
                 removeFromDepartment(employee);
@@ -47,7 +47,7 @@ public class CompanyImpl implements Company {
     @Override
     public void addEmployee(Employee empl) {
         if (employees.containsKey(empl.getId())) {
-            throw new IllegalStateException("Employee with the same ID already exists");
+            throw new IllegalStateException();
         }
         employees.put(empl.getId(), empl);
         addToDepartment(empl);
