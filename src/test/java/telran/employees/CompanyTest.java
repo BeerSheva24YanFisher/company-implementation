@@ -11,7 +11,7 @@ import static org.junit.jupiter.api.Assertions.assertThrowsExactly;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-abstract class CompanyTest {
+class CompanyTest {
 	private static final long ID1 = 123;
 	private static final int SALARY1 = 1000;
 	private static final String DEPARTMENT1 = "QA";
@@ -78,7 +78,12 @@ abstract class CompanyTest {
 	}
 
 	@Test
-	void testIterator() {
+	void testIterator(){
+		runTestIterator(company);
+	}
+
+	@Test
+	void runTestIterator(Company companyPer) {
 		Employee[] expected = {empl2, empl1, empl3};
 		Iterator<Employee> it = company.iterator();
 		int index = 0;
@@ -137,6 +142,26 @@ abstract class CompanyTest {
 		assertEquals(0, company.getDepartmentBudget(DEPARTMENT2));
 		assertArrayEquals(new Manager[0], company.getManagersWithMostFactor());
 		assertArrayEquals(new String[] {DEPARTMENT1}, company.getDepartments());
+	}
+
+	@Test
+	void jsonTest(){
+		Employee empl = Employee.getEmployeeFromJSON("{\"basicSalary\":1000,\"className\":\"telran.employees.Manager\",\"id\":123,\"department\":\"QA\", \"factor\":2}");
+		assertEquals(empl, new Manager(ID1, SALARY1, DEPARTMENT1, FACTOR1));
+		Employee empl1 = Employee.getEmployeeFromJSON("{\"basicSalary\":1000,\"className\":\"telran.employees.WageEmployee\",\"id\":123,\"department\":\"QA\", \"wage\":100, \"hours\":10}");
+		assertEquals(empl1, new WageEmployee(ID1, SALARY1, DEPARTMENT1, WAGE1, HOURS1));
+		Employee empl2 = Employee.getEmployeeFromJSON("{\"basicSalary\":1000,\"className\":\"telran.employees.SalesPerson\",\"id\":123,\"department\":\"QA\", \"wage\":100, \"hours\":10, \"percent\":0.01f, \"sales\":10000}");
+		assertEquals(empl2, new SalesPerson(ID1, SALARY1, DEPARTMENT1, WAGE1, HOURS1, PERCENT1, SALES1));
+	}
+
+	@Test
+	void persistenseTest(){
+		if(company instanceof Persistable persCompany){
+			persCompany.saveOfFile("company.data");
+			CompanyImpl comp = new CompanyImpl(); 
+			comp.restoreFromFile("company.data");
+			runTestIterator(comp);
+		}
 	}
 	
 	
