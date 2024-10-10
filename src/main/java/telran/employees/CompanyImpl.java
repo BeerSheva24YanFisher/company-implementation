@@ -1,10 +1,10 @@
 package telran.employees;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -113,9 +113,11 @@ private class CompanyIterator implements Iterator<Employee> {
 
     @Override
     public void saveOfFile(String fileName) {
-        try (PrintWriter out = new PrintWriter(new FileWriter(fileName))) {
+        try (BufferedWriter out = new BufferedWriter(new FileWriter(fileName))) {
             for (Employee empl : employees.values()) {
-                out.println(empl.toString());
+                out.write(empl.toString());
+                out.newLine();
+                
             }
         } catch (IOException e) {
             throw new RuntimeException("Error saving company to file", e);
