@@ -112,7 +112,7 @@ private class CompanyIterator implements Iterator<Employee> {
     }
 
     @Override
-    public void saveOfFile(String fileName) {
+    public void saveToFile(String fileName) {
         try (BufferedWriter out = new BufferedWriter(new FileWriter(fileName))) {
             for (Employee empl : employees.values()) {
                 out.write(empl.toString());

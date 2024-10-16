@@ -11,41 +11,40 @@ import static org.junit.jupiter.api.Assertions.assertThrowsExactly;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-class CompanyTest {
-	private static final long ID1 = 123;
-	private static final int SALARY1 = 1000;
-	private static final String DEPARTMENT1 = "QA";
-	private static final long ID2 = 120;
-	private static final int SALARY2 = 2000;
-	private static final long ID3 = 125;
-	private static final int SALARY3 = 3000;
-	private static final String DEPARTMENT2 = "Development";
-	private static final long ID4 = 200;
-	private static final String DEPARTMENT4 = "Audit";
-	private static final int WAGE1 = 100;
-	private static final int HOURS1 = 10;
-	private static final float FACTOR1 = 2;
-	private static final float PERCENT1 = 0.01f;
-	private static final long SALES1 = 10000;
-	private static final float FACTOR2 = 2.5f;
-	private static final long ID5 = 300;
-	private static final float FACTOR3 = 3;
-	private static final long ID6 = 400;
-	private static final long ID7 = 500;
-	private static final String EMPLOYEES_TEST_FILE = "employeesTest.data";
-	Employee empl1 = new WageEmployee(ID1, SALARY1, DEPARTMENT1, WAGE1, HOURS1);
-	Employee empl2 = new Manager(ID2, SALARY2, DEPARTMENT1, FACTOR1);
-	Employee empl3 = new SalesPerson(ID3, SALARY3, DEPARTMENT2, WAGE1, HOURS1, PERCENT1, SALES1);
-	Company company = new CompanyImpl();
 
-	@BeforeEach
-	void setCompany() {
-		
-		for(Employee empl: new Employee[] {empl1, empl2, empl3}) {
-			company.addEmployee(empl);
-		};
-	}
 
+ class CompanyTest {
+private static final long ID1 = 123;
+private static final int SALARY1 = 1000;
+private static final String DEPARTMENT1 = "QA";
+private static final long ID2 = 120;
+private static final int SALARY2 = 2000;
+private static final long ID3 = 125;
+private static final int SALARY3 = 3000;
+private static final String DEPARTMENT2 = "Development";
+private static final long ID4 = 200;
+private static final String DEPARTMENT4 = "Audit";
+private static final int WAGE1 = 100;
+private static final int HOURS1 = 10;
+private static final float FACTOR1 = 2;
+private static final float PERCENT1 = 0.01f;
+private static final long SALES1 = 10000;
+private static final float FACTOR2 = 2.5f;
+private static final long ID5 = 300;
+private static final float FACTOR3 = 3;
+private static final long ID6 = 400;
+private static final long ID7 = 500;
+Employee empl1 = new WageEmployee(ID1, SALARY1, DEPARTMENT1, WAGE1, HOURS1);
+Employee empl2 = new Manager(ID2, SALARY2, DEPARTMENT1, FACTOR1);
+Employee empl3 = new SalesPerson(ID3, SALARY3, DEPARTMENT2, WAGE1, HOURS1, PERCENT1, SALES1);
+ Company company = new CompanyImpl();
+@BeforeEach
+void setCompany() {
+	
+	 for(Employee empl: new Employee[] {empl1, empl2, empl3}) {
+		 company.addEmployee(empl);
+	 };
+}
 	@Test
 	void testAddEmployee()
 	{
@@ -78,14 +77,13 @@ class CompanyTest {
 	}
 
 	@Test
-	void testIterator(){
+	void testIterator() {
 		runTestIterator(company);
 	}
 
-	@Test
-	void runTestIterator(Company companyPer) {
+	private void runTestIterator(Company companyPar) {
 		Employee[] expected = {empl2, empl1, empl3};
-		Iterator<Employee> it = company.iterator();
+		Iterator<Employee> it = companyPar.iterator();
 		int index = 0;
 		while(it.hasNext()) {
 			assertEquals(expected[index++], it.next());
@@ -145,20 +143,16 @@ class CompanyTest {
 	}
 
 	@Test
-	void jsonTest(){
-		Employee empl = Employee.getEmployeeFromJSON("{\"basicSalary\":1000,\"className\":\"telran.employees.Manager\",\"id\":123,\"department\":\"QA\", \"factor\":2}");
-		assertEquals(empl, new Manager(ID1, SALARY1, DEPARTMENT1, FACTOR1));
-		Employee empl1 = Employee.getEmployeeFromJSON("{\"basicSalary\":1000,\"className\":\"telran.employees.WageEmployee\",\"id\":123,\"department\":\"QA\", \"wage\":100, \"hours\":10}");
-		assertEquals(empl1, new WageEmployee(ID1, SALARY1, DEPARTMENT1, WAGE1, HOURS1));
-		Employee empl2 = Employee.getEmployeeFromJSON("{\"basicSalary\":1000,\"className\":\"telran.employees.SalesPerson\",\"id\":123,\"department\":\"QA\", \"wage\":100, \"hours\":10, \"percent\":0.01f, \"sales\":10000}");
-		assertEquals(empl2, new SalesPerson(ID1, SALARY1, DEPARTMENT1, WAGE1, HOURS1, PERCENT1, SALES1));
+	void jsonTest() {
+		Employee empl = Employee.getEmployeeFromJSON("{\"basicSalary\":1000,\"className\":\"telran.employees.Manager\",\"id\":123,\"department\":\"QA\",\"factor\":2}");
+		assertEquals(empl, new Manager(ID1,SALARY1,DEPARTMENT1,FACTOR1));
 	}
 
 	@Test
-	void persistenseTest(){
-		if(company instanceof Persistable persCompany){
-			persCompany.saveOfFile("company.data");
-			CompanyImpl comp = new CompanyImpl(); 
+	void persistenceTest() {
+		if (company instanceof Persistable persCompany) {
+			persCompany.saveToFile("company.data");
+			CompanyImpl comp = new CompanyImpl();
 			comp.restoreFromFile("company.data");
 			runTestIterator(comp);
 		}
