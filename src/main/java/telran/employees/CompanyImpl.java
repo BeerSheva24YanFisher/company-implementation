@@ -1,10 +1,10 @@
 package telran.employees;
 
 import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.PrintWriter;
+import java.nio.file.Files;
+import java.nio.file.NoSuchFileException;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -15,6 +15,8 @@ import java.util.NoSuchElementException;
 import java.util.TreeMap;
 
 public class CompanyImpl implements Company, Persistable{
+    //FIXME introduce synchroniztion policy with the maximal concurreny
+    //Operations of not updating should run simultaniously 
    private TreeMap<Long, Employee> employees = new TreeMap<>();
    private HashMap<String, List<Employee>> employeesDepartment = new HashMap<>();
    private TreeMap<Float, List<Manager>> managersFactor = new TreeMap<>();
@@ -113,27 +115,21 @@ private class CompanyIterator implements Iterator<Employee> {
 
     @Override
     public void saveToFile(String fileName) {
-        try (BufferedWriter out = new BufferedWriter(new FileWriter(fileName))) {
-            for (Employee empl : employees.values()) {
-                out.write(empl.toString());
-                out.newLine();
-                
-            }
-        } catch (IOException e) {
-            throw new RuntimeException("Error saving company to file", e);
+        try (PrintWriter writer = new PrintWriter(fileName)) {
+            forEach(writer::println);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
     }
 
     @Override
     public void restoreFromFile(String fileName) {
-        try (BufferedReader reader = new BufferedReader(new FileReader(fileName))) {
-            String line;
-            while ((line = reader.readLine()) != null) {
-                Employee empl = Employee.getEmployeeFromJSON(line);
-                addEmployee(empl);
-            }
-        } catch (IOException e) {
-            throw new RuntimeException("Error restoring company from file", e);
+        try (BufferedReader reader = Files.newBufferedReader(Path.of(fileName))) {
+            reader.lines().map(Employee::getEmployeeFromJSON).forEach(this::addEmployee);
+        } catch (NoSuchFileException e) { 
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
     }
+
 }
