@@ -11,9 +11,7 @@ import static org.junit.jupiter.api.Assertions.assertThrowsExactly;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-
-
- class CompanyTest {
+ public class CompanyTest {
 private static final long ID1 = 123;
 private static final int SALARY1 = 1000;
 private static final String DEPARTMENT1 = "QA";
@@ -37,9 +35,9 @@ private static final long ID7 = 500;
 Employee empl1 = new WageEmployee(ID1, SALARY1, DEPARTMENT1, WAGE1, HOURS1);
 Employee empl2 = new Manager(ID2, SALARY2, DEPARTMENT1, FACTOR1);
 Employee empl3 = new SalesPerson(ID3, SALARY3, DEPARTMENT2, WAGE1, HOURS1, PERCENT1, SALES1);
- Company company = new CompanyImpl();
+ protected Company company = new CompanyImpl();
 @BeforeEach
-void setCompany() {
+protected void setCompany() {
 	
 	 for(Employee empl: new Employee[] {empl1, empl2, empl3}) {
 		 company.addEmployee(empl);
@@ -80,7 +78,6 @@ void setCompany() {
 	void testIterator() {
 		runTestIterator(company);
 	}
-
 	private void runTestIterator(Company companyPar) {
 		Employee[] expected = {empl2, empl1, empl3};
 		Iterator<Employee> it = companyPar.iterator();
@@ -91,7 +88,6 @@ void setCompany() {
 		assertEquals(expected.length, index);
 		assertThrowsExactly(NoSuchElementException.class, it::next);
 	}
-
 	@Test
 	void testGetDepartments() {
 		String [] expected = {DEPARTMENT1, DEPARTMENT2};
@@ -101,7 +97,6 @@ void setCompany() {
 		company.removeEmployee(ID3);
 		assertArrayEquals(expected, company.getDepartments());
 	}
-
 	@Test
 	void testGetManagersWithMostFactor() {
 		company.addEmployee(new Manager(ID4, SALARY1, DEPARTMENT1, FACTOR2));
@@ -122,41 +117,38 @@ void setCompany() {
 		assertArrayEquals(new Manager[0],company.getManagersWithMostFactor());
 		
 	}
-
 	@Test
-	void iteratorRemoveTest() {
-		Iterator<Employee> it = company.iterator();
-		while(it.hasNext()) {
-			Employee empl = it.next();
-			if(empl.computeSalary() > 2000) {
-				it.remove();
+		void iteratorRemoveTest() {
+			Iterator<Employee> it = company.iterator();
+			while(it.hasNext()) {
+				Employee empl = it.next();
+				if(empl.computeSalary() > 2000) {
+					it.remove();
+				}
+			}
+			assertThrowsExactly(IllegalStateException.class, it::remove);
+			assertThrowsExactly(NoSuchElementException.class,
+					() -> company.removeEmployee(ID2));
+			assertThrowsExactly(NoSuchElementException.class,
+					() -> company.removeEmployee(ID3));
+			assertEquals(0, company.getDepartmentBudget(DEPARTMENT2));
+			assertArrayEquals(new Manager[0], company.getManagersWithMostFactor());
+			assertArrayEquals(new String[] {DEPARTMENT1}, company.getDepartments());
+		}
+		@Test
+		void jsonTest() {
+			Employee empl = Employee.getEmployeeFromJSON("{\"basicSalary\":1000,\"className\":\"telran.employees.Manager\",\"id\":123,\"department\":\"QA\",\"factor\":2}");
+			assertEquals(empl, new Manager(ID1,SALARY1,DEPARTMENT1,FACTOR1));
+		}
+		@Test
+		void persistenceTest() {
+			if (company instanceof Persistable persCompany) {
+				persCompany.saveToFile("company.data");
+				CompanyImpl comp = new CompanyImpl();
+				comp.restoreFromFile("company.data");
+				runTestIterator(comp);
 			}
 		}
-		assertThrowsExactly(IllegalStateException.class, it::remove);
-		assertThrowsExactly(NoSuchElementException.class,
-				() -> company.removeEmployee(ID2));
-		assertThrowsExactly(NoSuchElementException.class,
-				() -> company.removeEmployee(ID3));
-		assertEquals(0, company.getDepartmentBudget(DEPARTMENT2));
-		assertArrayEquals(new Manager[0], company.getManagersWithMostFactor());
-		assertArrayEquals(new String[] {DEPARTMENT1}, company.getDepartments());
-	}
-
-	@Test
-	void jsonTest() {
-		Employee empl = Employee.getEmployeeFromJSON("{\"basicSalary\":1000,\"className\":\"telran.employees.Manager\",\"id\":123,\"department\":\"QA\",\"factor\":2}");
-		assertEquals(empl, new Manager(ID1,SALARY1,DEPARTMENT1,FACTOR1));
-	}
-
-	@Test
-	void persistenceTest() {
-		if (company instanceof Persistable persCompany) {
-			persCompany.saveToFile("company.data");
-			CompanyImpl comp = new CompanyImpl();
-			comp.restoreFromFile("company.data");
-			runTestIterator(comp);
-		}
-	}
 	
 	
 

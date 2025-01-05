@@ -3,9 +3,11 @@ package telran.employees.db.jpa;
 import java.lang.reflect.Constructor;
 import java.util.HashMap;
 import java.util.List;
+import java.util.NoSuchElementException;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
+import jakarta.persistence.EntityTransaction;
 import jakarta.persistence.TypedQuery;
 import jakarta.persistence.spi.PersistenceProvider;
 import jakarta.persistence.spi.PersistenceUnitInfo;
@@ -18,7 +20,7 @@ public class CompanyRepositoryJpaImpl implements CompanyRepository {
     public CompanyRepositoryJpaImpl(PersistenceUnitInfo persistenceUnit,
             HashMap<String, Object> properties) {
         try {
-            String providerName = persistenceUnit.getPersistenceUnitName();
+            String providerName = persistenceUnit.getPersistenceProviderClassName();
             @SuppressWarnings("unchecked")
             Class<PersistenceProvider> clazz = (Class<PersistenceProvider>) Class.forName(providerName);
             Constructor<PersistenceProvider> constructor = clazz.getConstructor();
@@ -41,6 +43,65 @@ public class CompanyRepositoryJpaImpl implements CompanyRepository {
 
     private List<Employee> toEmployeeList(List<EmployeeEntity> resultList) {
         return resultList.stream().map(EmployeesMapper::toEmployeeDtoFromEntity).toList();
+    }
+
+    @Override
+    public void insertEmployee(Employee empl) {
+        var transaction = em.getTransaction();
+        try {
+            transaction.begin();
+
+            var emplEntity = em.find(EmployeeEntity.class, empl.getId());
+            if (emplEntity != null) {
+                throw new IllegalStateException("Employee already exists");
+
+            }
+            EmployeeEntity employee = EmployeesMapper.toEmployeeEntityFromDto(empl);
+            em.persist(employee);
+            transaction.commit();
+        } catch (Exception e) {
+            transaction.rollback();
+            throw e;
+        }
+
+    }
+
+    @Override
+    public Employee findEmployee(long id) {
+        EmployeeEntity emplEntity = em.find(EmployeeEntity.class, id);
+        return emplEntity == null ? null : EmployeesMapper.toEmployeeDtoFromEntity(emplEntity);
+    }
+
+    @Override
+    public Employee removeEmployee(long id) {
+        EntityTransaction transaction = em.getTransaction();
+        try {
+            transaction.begin();
+            EmployeeEntity emplEntity = em.find(EmployeeEntity.class, id);
+        if (emplEntity == null) {
+            throw new NoSuchElementException("Employee doesn't exist");
+        }
+        em.remove(emplEntity);
+        transaction.commit();
+        return EmployeesMapper.toEmployeeDtoFromEntity(emplEntity);
+        } catch (Exception e) {
+            transaction.rollback();
+            throw e;
+        }
+        
+    }
+
+    @Override
+    public List<Employee> getEmployeesByDepartment(String department) {
+       TypedQuery<EmployeeEntity> query = em.createQuery("select empl from EmployeeEntity empl where department=?1", EmployeeEntity.class);
+       query.setParameter(1, department);
+       return toEmployeeList(query.getResultList());
+    }
+
+    @Override
+    public List<String> findDepartments() {
+        TypedQuery<String> query = em.createQuery("select distinct department from EmployeeEntity", String.class);
+        return query.getResultList();
     }
 
 }
