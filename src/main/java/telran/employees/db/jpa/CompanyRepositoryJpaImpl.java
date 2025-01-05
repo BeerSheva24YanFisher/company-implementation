@@ -1,22 +1,46 @@
 package telran.employees.db.jpa;
 
-import java.util.*;
+import java.lang.reflect.Constructor;
+import java.util.HashMap;
+import java.util.List;
 
-import jakarta.persistence.*;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.EntityManagerFactory;
+import jakarta.persistence.TypedQuery;
+import jakarta.persistence.spi.PersistenceProvider;
 import jakarta.persistence.spi.PersistenceUnitInfo;
 import telran.employees.Employee;
 import telran.employees.db.CompanyRepository;
 
-public class CompanyRepositoryJpaImpl implements CompanyRepository{
+public class CompanyRepositoryJpaImpl implements CompanyRepository {
     private EntityManager em;
+
     public CompanyRepositoryJpaImpl(PersistenceUnitInfo persistenceUnit,
-     HashMap<String, Object> properties) {
-        
+            HashMap<String, Object> properties) {
+        try {
+            String providerName = persistenceUnit.getPersistenceUnitName();
+            @SuppressWarnings("unchecked")
+            Class<PersistenceProvider> clazz = (Class<PersistenceProvider>) Class.forName(providerName);
+            Constructor<PersistenceProvider> constructor = clazz.getConstructor();
+            PersistenceProvider provider = constructor.newInstance();
+            EntityManagerFactory emf = provider.createContainerEntityManagerFactory(persistenceUnit, properties);
+            em = emf.createEntityManager();
+
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+
     }
+
     @Override
     public List<Employee> getEmployees() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getEmployees'");
+        TypedQuery<EmployeeEntity> query = em.createQuery("select empl from EmployeeEntity empl",
+                EmployeeEntity.class);
+        return toEmployeeList(query.getResultList());
+    }
+
+    private List<Employee> toEmployeeList(List<EmployeeEntity> resultList) {
+        return resultList.stream().map(EmployeesMapper::toEmployeeDtoFromEntity).toList();
     }
 
 }
