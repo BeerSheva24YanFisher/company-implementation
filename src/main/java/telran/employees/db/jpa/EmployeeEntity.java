@@ -2,6 +2,8 @@ package telran.employees.db.jpa;
 import org.json.JSONObject;
 
 import jakarta.persistence.Column;
+import jakarta.persistence.DiscriminatorColumn;
+import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Inheritance;
@@ -11,6 +13,8 @@ import telran.employees.Employee;
 @Table(name="employees")
 @Entity
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
+@DiscriminatorColumn(name="type")
+@DiscriminatorValue("Employee")
 public class EmployeeEntity {
     @Id
     private long id;

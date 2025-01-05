@@ -2,11 +2,13 @@ package telran.employees.db.jpa;
 
 import org.json.JSONObject;
 
+import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
 import telran.employees.Employee;
 import telran.employees.Manager;
 
 @Entity
+@DiscriminatorValue("Manager")
 public class ManagerEntity extends EmployeeEntity {
     private float factor;
 
