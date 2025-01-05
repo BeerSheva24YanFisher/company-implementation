@@ -1,5 +1,7 @@
 package telran.employees.db.jpa;
 
+import java.lang.reflect.Constructor;
+
 import org.json.JSONObject;
 
 import telran.employees.Employee;
@@ -7,6 +9,7 @@ import telran.employees.Employee;
 public class EmployeesMapper {
 private static final String PACKAGE = "telran.employees.";
 private static final String CLASS_NAME = "className";
+private static final String PACKAGE_JPA = PACKAGE + "db." + "jpa.";
 
 public static Employee toEmployeeDtoFromEntity(EmployeeEntity entity) {
     String entityClassName = entity.getClass().getSimpleName();
@@ -17,7 +20,17 @@ public static Employee toEmployeeDtoFromEntity(EmployeeEntity entity) {
     return Employee.getEmployeeFromJSON(jsonObj.toString());
 }
 public static EmployeeEntity toEmployeeEntityFromDto(Employee empl) {
-    //TODO
-    return null;
+    String entityClassName = PACKAGE_JPA + empl.getClass().getSimpleName() + "Entity";
+    try {
+        @SuppressWarnings("unchecked")
+        Class<EmployeeEntity> clazz = (Class<EmployeeEntity>) Class.forName(entityClassName);
+        Constructor<EmployeeEntity> constructor = clazz.getConstructor();
+        EmployeeEntity resEntity = constructor.newInstance();
+        resEntity.fromEmployeeDto(empl);
+        return resEntity;
+        
+    } catch (Exception e) {
+        throw new RuntimeException(e);
+    }
 }
 }

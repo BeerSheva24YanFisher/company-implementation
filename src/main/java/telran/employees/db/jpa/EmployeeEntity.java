@@ -18,11 +18,15 @@ public class EmployeeEntity {
     private int basicSalary;
     private String department;
     protected void fromEmployeeDto(Employee empl) {
-        //TODO
-        //filling relevat fields, example: id = empl.getId();...
+        id = empl.getId();
+        basicSalary = empl.getBasicSalary();
+        department = empl.getDepartment();
     }
     protected void toJsonObject(JSONObject jsonObj) {
-        //TODO
-        //put appropriate filds to JSONObject, example:jsonObj.put("id", id)
+        jsonObj.put("department", department);
+        jsonObj.put("basicSalary", basicSalary);
+        jsonObj.put("id", id);
+        
     }
+    
 }
