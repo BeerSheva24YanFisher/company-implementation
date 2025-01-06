@@ -48,8 +48,8 @@ public class CompanyDbImpl implements Company{
 
     @Override
     public Manager[] getManagersWithMostFactor() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getManagersWithMostFactor'");
+        List<Manager> managersList = repository.findManagersWithMaxFactor();
+        return managersList.toArray(Manager[]::new); 
     }
 
 }
